@@ -184,18 +184,17 @@ function setupEventListeners() {
 // Connect wallet
 async function connectWallet() {
   try {
-    if (!window.ethereum) {
-      showNotification('Por favor instala MetaMask para usar este marketplace', 'error');
+    if (!isWalletAvailable()) {
+      showNotification('Please install MetaMask to use this marketplace', 'error');
       return;
     }
     
-    // Request account access
-    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-    currentAccount = accounts[0];
+    // Use our new wallet connector
+    const walletData = await connectWallet('metamask');
     
-    // Initialize providers and contracts
-    provider = new ethers.providers.Web3Provider(window.ethereum);
-    signer = provider.getSigner();
+    currentAccount = walletData.account;
+    provider = walletData.provider;
+    signer = walletData.signer;
     
     // Create contract instances
     marketContract = new ethers.Contract(MARKET_ADDRESS, MARKET_ABI, signer);
@@ -219,35 +218,40 @@ async function connectWallet() {
       loadUserOffers();
     }
     
-    // Event listeners for account/chain changes
-    window.ethereum.on('accountsChanged', (accounts) => {
-      window.location.reload();
+    // Set up wallet connector event handlers
+    const walletConnector = getWalletConnector();
+    walletConnector.setEventHandlers({
+      onAccountChanged: (newAccount) => {
+        window.location.reload();
+      },
+      onChainChanged: (chainId) => {
+        window.location.reload();
+      },
+      onDisconnect: () => {
+        window.location.reload();
+      }
     });
     
-    window.ethereum.on('chainChanged', () => {
-      window.location.reload();
-    });
-    
-    showNotification('Wallet conectada exitosamente!', 'success');
+    showNotification('Wallet connected successfully!', 'success');
   } catch (error) {
-    console.error("Error de conexión:", error);
-    showNotification(error.message || "Fallo al conectar wallet", 'error');
+    console.error("Connection error:", error);
+    showNotification(error.message || "Failed to connect wallet", 'error');
   }
 }
 
 // Check if wallet is already connected
 async function checkConnection() {
-  if (window.ethereum) {
+  if (isWalletAvailable()) {
     try {
-      const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-      if (accounts.length > 0) {
+      const isConnected = await checkWalletConnection();
+      if (isConnected) {
         // Auto-connect if user has previously connected
         await connectWallet();
       } else {
         document.getElementById('connect-message').style.display = 'block';
       }
     } catch (error) {
-      console.error("Fallo al verificar conexión:", error);
+      console.error("Failed to check connection:", error);
     }
   }
 }

@@ -25,8 +25,14 @@ async function loadUserNFTs(append = false) {
   }
   
   try {
+    // Use our improved helper function - debug log
+    console.log("Fetching NFTs for owner:", currentAccount);
+    
     // Use our improved helper function
     const result = await getNFTsForOwner(ALCHEMY_API_KEY, currentAccount, nftPageKey);
+    
+    // Debug log
+    console.log("Alchemy response:", result);
     
     // Update page key for next request
     nftPageKey = result.pageKey;
@@ -48,18 +54,32 @@ async function loadUserNFTs(append = false) {
       result.nfts.forEach(nft => {
         const isSelected = selectedNFT && selectedNFT.tokenId === nft.tokenId && selectedNFT.contract === nft.contract;
         
+        // Debug log for each NFT
+        console.log("NFT data:", nft);
+        
+        // Make sure image URL is valid
+        let imageUrl = nft.image;
+        if (!imageUrl || imageUrl === 'undefined' || imageUrl === '') {
+          imageUrl = 'https://placehold.co/400x400?text=NFT+Image';
+        }
+        
+        // Check for metadata and attributes
+        const hasAttributes = nft.attributes && nft.attributes.length > 0;
+        const attrCount = hasAttributes ? nft.attributes.length : 0;
+        
         const cardDiv = document.createElement('div');
         cardDiv.className = 'col';
         cardDiv.innerHTML = `
           <div class="card nft-card ${isSelected ? 'selected' : ''}">
             <div class="nft-image-container">
-              <img src="${nft.image}" class="nft-image" alt="${nft.title}" 
+              <img src="${imageUrl}" class="nft-image" alt="${nft.title}" 
                    onerror="this.src='https://placehold.co/400x400?text=NFT+Image'">
             </div>
             <div class="card-body">
               <h5 class="card-title">${nft.title}</h5>
               <p class="card-text text-muted">ID: ${nft.tokenId}</p>
-              ${isSelected ? '<span class="badge status-live">Selected</span>' : ''}
+              ${hasAttributes ? `<span class="badge bg-info">${attrCount} Traits</span>` : ''}
+              ${isSelected ? '<span class="badge status-live ms-2">Selected</span>' : ''}
             </div>
           </div>
         `;
