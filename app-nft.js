@@ -21,7 +21,7 @@ async function loadUserNFTs(append = false) {
   } else {
     const loadMoreNftsBtn = document.getElementById('loadMoreNftsBtn');
     loadMoreNftsBtn.disabled = true;
-    loadMoreNftsBtn.textContent = "Cargando...";
+    loadMoreNftsBtn.textContent = "Loading...";
   }
   
   try {
@@ -59,7 +59,7 @@ async function loadUserNFTs(append = false) {
             <div class="card-body">
               <h5 class="card-title">${nft.title}</h5>
               <p class="card-text text-muted">ID: ${nft.tokenId}</p>
-              ${isSelected ? '<span class="badge status-live">Seleccionado</span>' : ''}
+              ${isSelected ? '<span class="badge status-live">Selected</span>' : ''}
             </div>
           </div>
         `;
@@ -75,7 +75,7 @@ async function loadUserNFTs(append = false) {
       const loadMoreNftsBtn = document.getElementById('loadMoreNftsBtn');
       if (loadMoreNftsBtn) {
         loadMoreNftsBtn.disabled = false;
-        loadMoreNftsBtn.textContent = "Cargar Más NFTs";
+        loadMoreNftsBtn.textContent = "Load More NFTs";
       }
     } else {
       if (!append) {
@@ -84,7 +84,7 @@ async function loadUserNFTs(append = false) {
       } else {
         const loadMoreNftsBtn = document.getElementById('loadMoreNftsBtn');
         if (loadMoreNftsBtn) {
-          loadMoreNftsBtn.textContent = "No Hay Más NFTs";
+          loadMoreNftsBtn.textContent = "No More NFTs";
           setTimeout(() => {
             loadMoreContainer.style.display = "none";
           }, 2000);
@@ -92,19 +92,19 @@ async function loadUserNFTs(append = false) {
       }
     }
   } catch (error) {
-    console.error("Error cargando NFTs:", error);
+    console.error("Error loading NFTs:", error);
     loadingElement.style.display = "none";
     
     if (append) {
       const loadMoreNftsBtn = document.getElementById('loadMoreNftsBtn');
       if (loadMoreNftsBtn) {
         loadMoreNftsBtn.disabled = false;
-        loadMoreNftsBtn.textContent = "Cargar Más NFTs";
+        loadMoreNftsBtn.textContent = "Load More NFTs";
       }
-      showNotification("Error al cargar más NFTs. Inténtalo de nuevo.", 'error');
+      showNotification("Failed to load more NFTs. Please try again.", 'error');
     } else {
       noNftsMessage.style.display = "block";
-      showNotification("Error al cargar tus NFTs. Inténtalo más tarde.", 'error');
+      showNotification("Failed to load your NFTs. Please try again later.", 'error');
     }
   }
 }
@@ -137,13 +137,13 @@ function selectNFT(nft) {
   document.getElementById('selected-nft-title').textContent = nft.title;
   document.getElementById('selected-nft-id').textContent = `ID: ${nft.tokenId}`;
   
-  showNotification(`${nft.title} seleccionado para listar`, 'info');
+  showNotification(`${nft.title} selected for listing`, 'info');
 }
 
 // Create a listing
 async function createListing() {
   if (!selectedNFT || !marketContract || !signer) {
-    showNotification('Por favor conecta tu wallet y selecciona un NFT primero', 'error');
+    showNotification('Please connect your wallet and select an NFT first', 'error');
     return;
   }
   
@@ -151,12 +151,12 @@ async function createListing() {
   const duration = document.getElementById('listing-duration').value;
   
   if (!price || parseFloat(price) <= 0) {
-    showNotification('Por favor ingresa un precio válido', 'error');
+    showNotification('Please enter a valid price', 'error');
     return;
   }
   
   if (!duration || parseInt(duration) < 1) {
-    showNotification('La duración debe ser de al menos 1 día', 'error');
+    showNotification('Duration must be at least 1 day', 'error');
     return;
   }
   
@@ -168,7 +168,7 @@ async function createListing() {
     const isApproved = await nftContract.isApprovedForAll(currentAccount, MARKET_ADDRESS);
     
     if (!isApproved) {
-      showNotification('Aprobando NFT para el marketplace...', 'info');
+      showNotification('Approving NFT for the marketplace...', 'info');
       const approveTx = await nftContract.setApprovalForAll(MARKET_ADDRESS, true);
       await approveTx.wait();
     }
@@ -177,7 +177,7 @@ async function createListing() {
     const priceWei = ethers.utils.parseEther(price.toString());
     const durationSeconds = parseInt(duration) * 24 * 60 * 60; // Convert days to seconds
     
-    showNotification('Creando listado...', 'info');
+    showNotification('Creating listing...', 'info');
     
     const tx = await marketContract.createListing(
       selectedNFT.contract,
@@ -191,7 +191,7 @@ async function createListing() {
     
     await tx.wait();
     
-    showNotification('¡Listado creado exitosamente!', 'success');
+    showNotification('Listing created successfully!', 'success');
     
     // Reset form and selection
     document.getElementById('listing-price').value = '';
@@ -206,8 +206,8 @@ async function createListing() {
     setActiveTab('mylistings');
     
   } catch (error) {
-    console.error('Error creando listado:', error);
-    showNotification('Error al crear listado: ' + error.message, 'error');
+    console.error('Error creating listing:', error);
+    showNotification('Failed to create listing: ' + error.message, 'error');
   }
 }
 
@@ -236,10 +236,10 @@ async function loadActiveListings() {
       processListings(listings);
     }
   } catch (error) {
-    console.error("Error cargando listados:", error);
+    console.error("Error loading listings:", error);
     loadingElement.style.display = "none";
     noListingsMessage.style.display = "block";
-    showNotification("Error al cargar listados. Inténtalo más tarde.", 'error');
+    showNotification("Failed to load marketplace listings. Please try again later.", 'error');
   }
   
   async function processListings(listings) {
@@ -290,14 +290,14 @@ async function loadActiveListings() {
               <div class="d-grid gap-2">
                 ${isOwner ? 
                   `<button class="btn btn-danger btn-sm cancel-listing-btn" data-listing-id="${listing.id}">
-                    Cancelar Listado
+                    Cancel Listing
                   </button>` : 
                   `<button class="btn btn-success btn-sm buy-listing-btn" data-listing-id="${listing.id}" data-price="${price}">
-                    Comprar Ahora
+                    Buy Now
                   </button>`
                 }
                 <button class="btn btn-outline-secondary btn-sm view-details-btn" data-listing-id="${listing.id}">
-                  Ver Detalles
+                  View Details
                 </button>
               </div>
             </div>
@@ -306,7 +306,7 @@ async function loadActiveListings() {
         
         listingsGrid.appendChild(listingDiv);
       } catch (listingError) {
-        console.error(`Error procesando listado ${listing.id}:`, listingError);
+        console.error(`Error processing listing ${listing.id}:`, listingError);
       }
     }
     
@@ -367,10 +367,10 @@ async function loadMyListings() {
       processListings(listings);
     }
   } catch (error) {
-    console.error("Error cargando mis listados:", error);
+    console.error("Error loading my listings:", error);
     loadingElement.style.display = "none";
     noListingsMessage.style.display = "block";
-    showNotification("Error al cargar tus listados. Inténtalo más tarde.", 'error');
+    showNotification("Failed to load your listings. Please try again later.", 'error');
   }
   
   async function processListings(listings) {
@@ -419,10 +419,10 @@ async function loadMyListings() {
               <p class="card-text text-muted">${timeString}</p>
               <div class="d-grid gap-2">
                 <button class="btn btn-danger btn-sm cancel-listing-btn" data-listing-id="${listing.id}">
-                  Cancelar Listado
+                  Cancel Listing
                 </button>
                 <button class="btn btn-outline-secondary btn-sm view-details-btn" data-listing-id="${listing.id}">
-                  Ver Detalles
+                  View Details
                 </button>
               </div>
             </div>
@@ -431,7 +431,7 @@ async function loadMyListings() {
         
         listingsGrid.appendChild(listingDiv);
       } catch (listingError) {
-        console.error(`Error procesando listado ${listing.id}:`, listingError);
+        console.error(`Error processing listing ${listing.id}:`, listingError);
       }
     }
     
@@ -460,16 +460,16 @@ async function loadMyListings() {
 // Cancel a listing
 async function cancelListing(listingId) {
   if (!marketContract || !signer) {
-    showNotification('Por favor conecta tu wallet primero', 'error');
+    showNotification('Please connect your wallet first', 'error');
     return;
   }
   
   try {
-    showNotification('Cancelando listado...', 'info');
+    showNotification('Cancelling listing...', 'info');
     const tx = await marketContract.cancelListing(listingId, { gasLimit: 1000000 });
     await tx.wait();
     
-    showNotification('Listado cancelado exitosamente!', 'success');
+    showNotification('Listing cancelled successfully!', 'success');
     
     // Reload listings
     const activeTab = document.querySelector('.nav-link.active').id;
@@ -480,15 +480,15 @@ async function cancelListing(listingId) {
     }
     
   } catch (error) {
-    console.error('Error cancelando listado:', error);
-    showNotification('Error al cancelar listado: ' + error.message, 'error');
+    console.error('Error cancelling listing:', error);
+    showNotification('Failed to cancel listing: ' + error.message, 'error');
   }
 }
 
 // Buy a listed NFT
 async function buyListing(listingId, price) {
   if (!marketContract || !signer) {
-    showNotification('Por favor conecta tu wallet primero', 'error');
+    showNotification('Please connect your wallet first', 'error');
     return;
   }
   
@@ -498,23 +498,23 @@ async function buyListing(listingId, price) {
     const allowance = await tokenContract.allowance(currentAccount, MARKET_ADDRESS);
     
     if (allowance.lt(priceWei)) {
-      showNotification('Aprobando tokens para la compra...', 'info');
+      showNotification('Approving tokens for purchase...', 'info');
       const approveTx = await tokenContract.approve(MARKET_ADDRESS, priceWei);
       await approveTx.wait();
     }
     
     // Buy the NFT
-    showNotification('Procesando compra...', 'info');
+    showNotification('Processing purchase...', 'info');
     const buyTx = await marketContract.buyListing(listingId, 1, { gasLimit: 1000000 });
     await buyTx.wait();
     
-    showNotification('¡Compra exitosa!', 'success');
+    showNotification('Purchase successful!', 'success');
     
     // Reload listings
     loadActiveListings();
     
   } catch (error) {
-    console.error('Error comprando NFT:', error);
-    showNotification('Error al comprar NFT: ' + error.message, 'error');
+    console.error('Error buying NFT:', error);
+    showNotification('Failed to purchase NFT: ' + error.message, 'error');
   }
 } 

@@ -19,7 +19,7 @@ async function showListingDetails(listingId) {
     // Populate modal
     document.getElementById('modal-nft-title').textContent = nftMetadata.title;
     document.getElementById('modal-nft-image').src = nftMetadata.image;
-    document.getElementById('modal-nft-description').textContent = nftMetadata.description || 'No hay descripción disponible';
+    document.getElementById('modal-nft-description').textContent = nftMetadata.description || 'No description available';
     document.getElementById('modal-nft-contract').textContent = `${listing.collection.substring(0,6)}...${listing.collection.substring(38)}`;
     document.getElementById('modal-nft-token-id').textContent = listing.tokenId.toString();
     
@@ -57,7 +57,7 @@ async function showListingDetails(listingId) {
     if (isOwner) {
       actionsContainer.innerHTML = `
         <button class="btn btn-danger w-100 cancel-modal-listing-btn" data-listing-id="${listing.id}">
-          Cancelar Listado
+          Cancel Listing
         </button>
       `;
       
@@ -72,7 +72,7 @@ async function showListingDetails(listingId) {
     } else {
       actionsContainer.innerHTML = `
         <button class="btn btn-success w-100 buy-modal-listing-btn" data-listing-id="${listing.id}" data-price="${ethers.utils.formatEther(listing.price)}">
-          Comprar Ahora
+          Buy Now
         </button>
       `;
       
@@ -105,8 +105,8 @@ async function showListingDetails(listingId) {
     const modal = new bootstrap.Modal(document.getElementById('nftModal'));
     modal.show();
   } catch (error) {
-    console.error('Error al mostrar detalles del listado:', error);
-    showNotification('Error al cargar detalles del listado', 'error');
+    console.error('Error showing listing details:', error);
+    showNotification('Failed to load listing details', 'error');
   }
 }
 
@@ -144,19 +144,19 @@ async function loadFloorOffer(collection) {
         );
         
         if (acceptResult.success) {
-          showNotification('¡Oferta de piso aceptada exitosamente!', 'success');
+          showNotification('Floor offer accepted successfully!', 'success');
           // Close modal
           const modal = bootstrap.Modal.getInstance(document.getElementById('nftModal'));
           modal.hide();
         } else {
-          showNotification('Error al aceptar oferta de piso: ' + acceptResult.error, 'error');
+          showNotification('Error accepting floor offer: ' + acceptResult.error, 'error');
         }
       };
     } else {
       floorOfferInfo.style.display = 'none';
     }
   } catch (error) {
-    console.error('Error al cargar oferta de piso:', error);
+    console.error('Error loading floor offer:', error);
     document.getElementById('floor-offer-info').style.display = 'none';
   }
 }
@@ -164,12 +164,12 @@ async function loadFloorOffer(collection) {
 // Make token offer for a specific NFT
 async function makeTokenOffer(collection, tokenId, offerAmount) {
   if (!marketContract || !tokenContract || !signer) {
-    showNotification('Por favor conecta tu wallet primero', 'error');
+    showNotification('Please connect your wallet first', 'error');
     return;
   }
   
   if (!offerAmount || parseFloat(offerAmount) <= 0) {
-    showNotification('Por favor ingresa una cantidad de oferta válida', 'error');
+    showNotification('Please enter a valid offer amount', 'error');
     return;
   }
   
@@ -186,7 +186,7 @@ async function makeTokenOffer(collection, tokenId, offerAmount) {
     );
     
     if (result.success) {
-      showNotification('¡Oferta creada exitosamente!', 'success');
+      showNotification('Offer created successfully!', 'success');
       
       // Clear form
       document.getElementById('token-offer-amount').value = '';
@@ -195,18 +195,18 @@ async function makeTokenOffer(collection, tokenId, offerAmount) {
       const modal = bootstrap.Modal.getInstance(document.getElementById('nftModal'));
       modal.hide();
     } else {
-      showNotification('Error al crear oferta: ' + result.error, 'error');
+      showNotification('Error creating offer: ' + result.error, 'error');
     }
   } catch (error) {
-    console.error('Error al crear oferta de token:', error);
-    showNotification('Error al crear oferta: ' + error.message, 'error');
+    console.error('Error creating token offer:', error);
+    showNotification('Error creating offer: ' + error.message, 'error');
   }
 }
 
 // Create trait offer from form
 async function createTraitOfferFromForm() {
   if (!marketContract || !tokenContract || !signer) {
-    showNotification('Por favor conecta tu wallet primero', 'error');
+    showNotification('Please connect your wallet first', 'error');
     return;
   }
   
@@ -215,12 +215,12 @@ async function createTraitOfferFromForm() {
   const offerAmount = document.getElementById('trait-offer-amount').value;
   
   if (!traitType || !traitValue) {
-    showNotification('Por favor selecciona un tipo y valor de rasgo', 'error');
+    showNotification('Please select a trait type and value', 'error');
     return;
   }
   
   if (!offerAmount || parseFloat(offerAmount) <= 0) {
-    showNotification('Por favor ingresa una cantidad de oferta válida', 'error');
+    showNotification('Please enter a valid offer amount', 'error');
     return;
   }
   
@@ -236,7 +236,7 @@ async function createTraitOfferFromForm() {
     );
     
     if (result.success) {
-      showNotification('¡Oferta por rasgo creada exitosamente!', 'success');
+      showNotification('Trait offer created successfully!', 'success');
       
       // Clear form and close modal
       document.getElementById('trait-offer-amount').value = '';
@@ -248,18 +248,18 @@ async function createTraitOfferFromForm() {
         loadUserOffers();
       }
     } else {
-      showNotification('Error al crear oferta por rasgo: ' + result.error, 'error');
+      showNotification('Error creating trait offer: ' + result.error, 'error');
     }
   } catch (error) {
-    console.error('Error al crear oferta por rasgo:', error);
-    showNotification('Error al crear oferta: ' + error.message, 'error');
+    console.error('Error creating trait offer:', error);
+    showNotification('Error creating offer: ' + error.message, 'error');
   }
 }
 
 // Create floor offer from form
 async function createFloorOfferFromForm() {
   if (!marketContract || !tokenContract || !signer) {
-    showNotification('Por favor conecta tu wallet primero', 'error');
+    showNotification('Please connect your wallet first', 'error');
     return;
   }
   
@@ -267,12 +267,12 @@ async function createFloorOfferFromForm() {
   const offerAmount = document.getElementById('floor-offer-amount').value;
   
   if (!collection || !ethers.utils.isAddress(collection)) {
-    showNotification('Por favor ingresa una dirección de colección válida', 'error');
+    showNotification('Please enter a valid collection address', 'error');
     return;
   }
   
   if (!offerAmount || parseFloat(offerAmount) <= 0) {
-    showNotification('Por favor ingresa una cantidad de oferta válida', 'error');
+    showNotification('Please enter a valid offer amount', 'error');
     return;
   }
   
@@ -287,7 +287,7 @@ async function createFloorOfferFromForm() {
     );
     
     if (result.success) {
-      showNotification('¡Oferta de piso creada exitosamente!', 'success');
+      showNotification('Floor offer created successfully!', 'success');
       
       // Clear form and close modal
       document.getElementById('collection-address').value = '';
@@ -300,11 +300,11 @@ async function createFloorOfferFromForm() {
         loadUserOffers();
       }
     } else {
-      showNotification('Error al crear oferta de piso: ' + result.error, 'error');
+      showNotification('Error creating floor offer: ' + result.error, 'error');
     }
   } catch (error) {
-    console.error('Error al crear oferta de piso:', error);
-    showNotification('Error al crear oferta: ' + error.message, 'error');
+    console.error('Error creating floor offer:', error);
+    showNotification('Error creating offer: ' + error.message, 'error');
   }
 }
 
@@ -316,7 +316,7 @@ function handleTraitTypeChange() {
   const selectedType = traitTypeSelect.value;
   
   // Reset and disable value select
-  traitValueSelect.innerHTML = '<option value="">Selecciona un valor</option>';
+  traitValueSelect.innerHTML = '<option value="">Select a value</option>';
   traitValueSelect.disabled = !selectedType;
   
   if (!selectedType) return;
@@ -409,14 +409,14 @@ async function loadUserTokenOffers() {
             <button class="btn btn-sm btn-danger cancel-token-offer-btn" 
                     data-collection="${offer.collection}" 
                     data-token-id="${offer.tokenId}">
-              Cancelar
+              Cancel
             </button>
           </div>
         `;
         
         offersList.appendChild(offerItem);
       } catch (error) {
-        console.error(`Error procesando oferta de token:`, error);
+        console.error(`Error processing token offer:`, error);
       }
     }
     
@@ -429,10 +429,10 @@ async function loadUserTokenOffers() {
         const result = await cancelTokenOffer(marketContract, collection, tokenId);
         
         if (result.success) {
-          showNotification('Oferta cancelada exitosamente', 'success');
+          showNotification('Offer cancelled successfully', 'success');
           loadUserTokenOffers();
         } else {
-          showNotification('Error al cancelar oferta: ' + result.error, 'error');
+          showNotification('Error cancelling offer: ' + result.error, 'error');
         }
       });
     });
@@ -440,10 +440,10 @@ async function loadUserTokenOffers() {
     loadingElement.style.display = 'none';
     offersList.style.display = 'block';
   } catch (error) {
-    console.error('Error cargando ofertas de token:', error);
+    console.error('Error loading token offers:', error);
     loadingElement.style.display = 'none';
     noOffersMessage.style.display = 'block';
-    showNotification('Error al cargar ofertas de token', 'error');
+    showNotification('Error loading token offers', 'error');
   }
 }
 

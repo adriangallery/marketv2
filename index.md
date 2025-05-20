@@ -1,6 +1,6 @@
 # AdrianMarket v2.0
 
-Este proyecto está alojado en GitHub Pages. Si no se redirige automáticamente, [haga clic aquí](index.html) para acceder a la aplicación.
+This project is hosted on GitHub Pages. If you are not automatically redirected, [click here](index.html) to access the application.
 
 <script>
   window.location.href = "index.html";

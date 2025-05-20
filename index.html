@@ -19,16 +19,16 @@
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav me-auto">
           <li class="nav-item">
-            <a class="nav-link active" href="#" id="explore-tab">Explorar</a>
+            <a class="nav-link active" href="#" id="explore-tab">Explore</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#" id="myauctions-tab">Mis Listados</a>
+            <a class="nav-link" href="#" id="myauctions-tab">My Listings</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#" id="create-tab">Crear Listado</a>
+            <a class="nav-link" href="#" id="create-tab">Create Listing</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#" id="offers-tab">Mis Ofertas</a>
+            <a class="nav-link" href="#" id="offers-tab">My Offers</a>
           </li>
         </ul>
         <div id="account-section" style="display: none;">
@@ -37,7 +37,7 @@
           </span>
         </div>
         <div id="connect-section">
-          <button id="connectWalletBtn" class="btn btn-outline-light">Conectar Wallet</button>
+          <button id="connectWalletBtn" class="btn btn-outline-light">Connect Wallet</button>
         </div>
       </div>
     </div>
@@ -47,41 +47,41 @@
   <div class="container mt-4">
     <!-- Connect Wallet Message (for non-connected users) -->
     <div id="connect-message" class="text-center my-5" style="display: none;">
-      <h2>Bienvenido a AdrianMarket</h2>
-      <p class="lead">Conecta tu wallet para comprar, vender y operar con NFTs</p>
-      <button id="connectWalletBtnBig" class="btn btn-primary btn-lg mt-3">Conectar Wallet</button>
+      <h2>Welcome to AdrianMarket</h2>
+      <p class="lead">Connect your wallet to buy, sell and trade NFTs</p>
+      <button id="connectWalletBtnBig" class="btn btn-primary btn-lg mt-3">Connect Wallet</button>
     </div>
 
     <!-- Explore Tab Content -->
     <div id="explore-content" class="tab-content">
-      <h2 class="mb-4">Listados del Mercado</h2>
+      <h2 class="mb-4">Marketplace Listings</h2>
       
       <div class="row mb-4">
         <div class="col-md-6">
           <div class="input-group">
             <span class="input-group-text"><i class="bi bi-search"></i></span>
-            <input type="text" id="searchListings" class="form-control" placeholder="Buscar listados...">
+            <input type="text" id="searchListings" class="form-control" placeholder="Search listings...">
           </div>
         </div>
         <div class="col-md-6 text-md-end">
           <select id="sortListings" class="form-select d-inline-block w-auto">
-            <option value="newest">Más recientes</option>
-            <option value="oldest">Más antiguos</option>
-            <option value="price-asc">Precio: Menor a Mayor</option>
-            <option value="price-desc">Precio: Mayor a Menor</option>
-            <option value="ending-soon">Finalizando Pronto</option>
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="ending-soon">Ending Soon</option>
           </select>
         </div>
       </div>
       
       <div id="loading-listings" class="text-center py-5">
         <div class="loading-spinner"></div>
-        <p class="mt-3">Cargando listados...</p>
+        <p class="mt-3">Loading listings...</p>
       </div>
       
       <div id="no-listings" class="text-center py-5" style="display: none;">
-        <p class="lead">No se encontraron listados</p>
-        <button class="btn btn-primary mt-3" id="createFirstListingBtn">Crear el primer listado</button>
+        <p class="lead">No listings found</p>
+        <button class="btn btn-primary mt-3" id="createFirstListingBtn">Create the first listing</button>
       </div>
       
       <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4" id="listings-grid" style="display: none;">
@@ -89,22 +89,22 @@
       </div>
       
       <div class="text-center mt-4" id="load-more-listings" style="display: none;">
-        <button class="btn btn-outline-primary">Cargar Más</button>
+        <button class="btn btn-outline-primary">Load More</button>
       </div>
     </div>
     
     <!-- My Listings Tab Content -->
     <div id="mylistings-content" class="tab-content" style="display: none;">
-      <h2 class="mb-4">Mis Listados</h2>
+      <h2 class="mb-4">My Listings</h2>
       
       <div id="loading-my-listings" class="text-center py-5">
         <div class="loading-spinner"></div>
-        <p class="mt-3">Cargando tus listados...</p>
+        <p class="mt-3">Loading your listings...</p>
       </div>
       
       <div id="no-my-listings" class="text-center py-5" style="display: none;">
-        <p class="lead">No tienes listados activos</p>
-        <button class="btn btn-primary mt-3" id="createListingBtn">Crear un Listado</button>
+        <p class="lead">You don't have any active listings</p>
+        <button class="btn btn-primary mt-3" id="createListingBtn">Create a Listing</button>
       </div>
       
       <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4" id="my-listings-grid" style="display: none;">
@@ -114,24 +114,24 @@
     
     <!-- Create Listing Tab Content -->
     <div id="create-content" class="tab-content" style="display: none;">
-      <h2 class="mb-4">Crear Listado</h2>
+      <h2 class="mb-4">Create Listing</h2>
       
       <div class="row">
         <div class="col-md-8">
           <div class="card mb-4">
             <div class="card-header">
-              <h5 class="mb-0">Selecciona un NFT para Listar</h5>
+              <h5 class="mb-0">Select an NFT to List</h5>
             </div>
             <div class="card-body">
               <div id="loading-nfts" class="text-center py-4">
                 <div class="loading-spinner"></div>
-                <p class="mt-3">Cargando tus NFTs...</p>
+                <p class="mt-3">Loading your NFTs...</p>
               </div>
               
               <div id="no-nfts" class="text-center py-4" style="display: none;">
-                <p class="lead">No se encontraron NFTs en tu wallet</p>
+                <p class="lead">No NFTs found in your wallet</p>
                 <a href="https://help.opensea.io/en/articles/3980527-how-do-i-purchase-an-nft" target="_blank" class="btn btn-outline-secondary mt-2">
-                  Aprende cómo conseguir NFTs
+                  Learn how to get NFTs
                 </a>
               </div>
               
@@ -140,7 +140,7 @@
               </div>
               
               <div class="text-center mt-3" id="load-more-nfts" style="display: none;">
-                <button id="loadMoreNftsBtn" class="btn btn-outline-secondary">Cargar Más NFTs</button>
+                <button id="loadMoreNftsBtn" class="btn btn-outline-secondary">Load More NFTs</button>
               </div>
             </div>
           </div>
@@ -149,12 +149,12 @@
         <div class="col-md-4">
           <div class="card" id="listing-form-card" style="display: none;">
             <div class="card-header">
-              <h5 class="mb-0">Detalles del Listado</h5>
+              <h5 class="mb-0">Listing Details</h5>
             </div>
             <div class="card-body">
               <div class="selected-nft-preview mb-3 pb-3 border-bottom">
                 <div class="d-flex align-items-center">
-                  <img id="selected-nft-image" src="" alt="NFT Seleccionado" class="me-3" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px;">
+                  <img id="selected-nft-image" src="" alt="Selected NFT" class="me-3" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px;">
                   <div>
                     <h5 id="selected-nft-title" class="mb-1"></h5>
                     <p id="selected-nft-id" class="mb-0 text-muted"></p>
@@ -164,18 +164,18 @@
               
               <form id="create-listing-form">
                 <div class="mb-3">
-                  <label for="listing-price" class="form-label">Precio ($ADRIAN)</label>
-                  <input type="number" class="form-control" id="listing-price" required min="0.000001" step="0.000001" placeholder="ej., 10000">
-                  <small class="form-text text-muted">El precio en tokens $ADRIAN</small>
+                  <label for="listing-price" class="form-label">Price ($ADRIAN)</label>
+                  <input type="number" class="form-control" id="listing-price" required min="0.000001" step="0.000001" placeholder="e.g., 10000">
+                  <small class="form-text text-muted">The price in $ADRIAN tokens</small>
                 </div>
                 
                 <div class="mb-3">
-                  <label for="listing-duration" class="form-label">Duración (días)</label>
+                  <label for="listing-duration" class="form-label">Duration (days)</label>
                   <input type="number" class="form-control" id="listing-duration" required min="1" value="7">
-                  <small class="form-text text-muted">Tiempo que el listado permanecerá activo</small>
+                  <small class="form-text text-muted">How long the listing will be active</small>
                 </div>
                 
-                <button type="submit" class="btn btn-primary w-100">Crear Listado</button>
+                <button type="submit" class="btn btn-primary w-100">Create Listing</button>
               </form>
             </div>
           </div>
@@ -185,17 +185,17 @@
     
     <!-- My Offers Tab Content -->
     <div id="offers-content" class="tab-content" style="display: none;">
-      <h2 class="mb-4">Mis Ofertas</h2>
+      <h2 class="mb-4">My Offers</h2>
       
       <ul class="nav nav-tabs mb-4" id="offers-tabs">
         <li class="nav-item">
-          <a class="nav-link active" data-bs-toggle="tab" href="#token-offers-tab">Ofertas de Token</a>
+          <a class="nav-link active" data-bs-toggle="tab" href="#token-offers-tab">Token Offers</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" data-bs-toggle="tab" href="#floor-offers-tab">Ofertas de Piso</a>
+          <a class="nav-link" data-bs-toggle="tab" href="#floor-offers-tab">Floor Offers</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" data-bs-toggle="tab" href="#trait-offers-tab">Ofertas por Rasgo</a>
+          <a class="nav-link" data-bs-toggle="tab" href="#trait-offers-tab">Trait Offers</a>
         </li>
       </ul>
       
@@ -203,11 +203,11 @@
         <div class="tab-pane fade show active" id="token-offers-tab">
           <div id="loading-token-offers" class="text-center py-4">
             <div class="loading-spinner"></div>
-            <p class="mt-3">Cargando ofertas de token...</p>
+            <p class="mt-3">Loading token offers...</p>
           </div>
           
           <div id="no-token-offers" class="text-center py-4" style="display: none;">
-            <p class="lead">No tienes ofertas activas de token</p>
+            <p class="lead">You don't have any active token offers</p>
           </div>
           
           <div class="list-group" id="token-offers-list" style="display: none;">
@@ -218,11 +218,11 @@
         <div class="tab-pane fade" id="floor-offers-tab">
           <div id="loading-floor-offers" class="text-center py-4">
             <div class="loading-spinner"></div>
-            <p class="mt-3">Cargando ofertas de piso...</p>
+            <p class="mt-3">Loading floor offers...</p>
           </div>
           
           <div id="no-floor-offers" class="text-center py-4" style="display: none;">
-            <p class="lead">No tienes ofertas activas de piso</p>
+            <p class="lead">You don't have any active floor offers</p>
           </div>
           
           <div class="list-group" id="floor-offers-list" style="display: none;">
@@ -233,11 +233,11 @@
         <div class="tab-pane fade" id="trait-offers-tab">
           <div id="loading-trait-offers" class="text-center py-4">
             <div class="loading-spinner"></div>
-            <p class="mt-3">Cargando ofertas por rasgo...</p>
+            <p class="mt-3">Loading trait offers...</p>
           </div>
           
           <div id="no-trait-offers" class="text-center py-4" style="display: none;">
-            <p class="lead">No tienes ofertas activas por rasgo</p>
+            <p class="lead">You don't have any active trait offers</p>
           </div>
           
           <div class="list-group" id="trait-offers-list" style="display: none;">
@@ -250,13 +250,13 @@
 
   <!-- Notification Div -->
   <div id="notification" class="notification">
-    Mensaje de notificación aquí
+    Notification message here
   </div>
 
   <!-- Theme Switch -->
   <div class="theme-switch" onclick="toggleTheme()">
     <i class="bi bi-moon-fill" id="theme-icon"></i>
-    <span class="ms-2" id="theme-text">Modo Oscuro</span>
+    <span class="ms-2" id="theme-text">Dark Mode</span>
   </div>
 
   <!-- NFT Details Modal -->
@@ -272,11 +272,11 @@
             <img id="modal-nft-image" src="" alt="NFT" class="img-fluid rounded" style="max-height: 300px;">
           </div>
           <div class="mb-3">
-            <h6>Detalles</h6>
+            <h6>Details</h6>
             <p id="modal-nft-description" class="text-muted"></p>
             <div class="d-flex justify-content-between">
               <div>
-                <small class="text-muted">Contrato:</small>
+                <small class="text-muted">Contract:</small>
                 <p id="modal-nft-contract"></p>
               </div>
               <div>
@@ -287,7 +287,7 @@
             
             <!-- NFT Attributes/Traits Section -->
             <div id="nft-attributes-section" class="mb-3">
-              <h6 class="mb-2">Rasgos</h6>
+              <h6 class="mb-2">Traits</h6>
               <div id="nft-attributes-container" class="d-flex flex-wrap gap-2">
                 <!-- Attributes will be added here -->
               </div>
@@ -295,13 +295,13 @@
           </div>
           
           <div id="listing-info" style="display: none;">
-            <h6>Información del Listado</h6>
+            <h6>Listing Info</h6>
             <div class="d-flex justify-content-between mb-2">
-              <span>Precio:</span>
+              <span>Price:</span>
               <span id="modal-listing-price" class="fw-bold"></span>
             </div>
             <div class="d-flex justify-content-between mb-3">
-              <span>Vence:</span>
+              <span>Expires:</span>
               <span id="modal-listing-expiration"></span>
             </div>
             
@@ -313,37 +313,37 @@
           <!-- Offer Actions Section -->
           <div id="offer-actions-section" style="display: none;">
             <hr>
-            <h6>Ofertas</h6>
+            <h6>Offers</h6>
             
             <!-- Floor Offer Info -->
             <div id="floor-offer-info" class="mb-3" style="display: none;">
               <div class="alert alert-info">
                 <div class="d-flex justify-content-between align-items-center">
                   <div>
-                    <strong>Oferta de Piso Activa:</strong>
+                    <strong>Active Floor Offer:</strong>
                     <span id="floor-offer-amount"></span> $ADRIAN
                   </div>
-                  <button id="accept-floor-offer-btn" class="btn btn-sm btn-success">Aceptar</button>
+                  <button id="accept-floor-offer-btn" class="btn btn-sm btn-success">Accept</button>
                 </div>
               </div>
             </div>
             
             <!-- Token Offer Form -->
             <div id="token-offer-form" class="border rounded p-3 mb-3">
-              <h6 class="mb-3">Hacer una Oferta por este NFT</h6>
+              <h6 class="mb-3">Make an Offer for this NFT</h6>
               <div class="mb-3">
-                <label for="token-offer-amount" class="form-label">Cantidad de la Oferta ($ADRIAN)</label>
+                <label for="token-offer-amount" class="form-label">Offer Amount ($ADRIAN)</label>
                 <input type="number" class="form-control" id="token-offer-amount" min="0.000001" step="0.000001" required>
               </div>
-              <button id="make-token-offer-btn" class="btn btn-primary">Hacer Oferta</button>
+              <button id="make-token-offer-btn" class="btn btn-primary">Make Offer</button>
             </div>
             
             <!-- If the user owns this NFT, show Accept Offers section -->
             <div id="accept-offers-section" style="display: none;">
               <div class="border rounded p-3">
-                <h6 class="mb-3">Ofertas Recibidas</h6>
+                <h6 class="mb-3">Received Offers</h6>
                 <div id="no-offers-message" class="text-center text-muted py-2" style="display: none;">
-                  No hay ofertas activas para este NFT
+                  No active offers for this NFT
                 </div>
                 <div id="token-offers-container">
                   <!-- Token offers will be shown here -->
@@ -361,35 +361,35 @@
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Crear Oferta por Rasgo</h5>
+          <h5 class="modal-title">Create Trait Offer</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <p>Haz una oferta por cualquier NFT que tenga el rasgo seleccionado.</p>
+          <p>Make an offer for any NFT that has the selected trait.</p>
           
           <form id="trait-offer-form">
             <div class="mb-3">
-              <label for="trait-type-select" class="form-label">Tipo de Rasgo</label>
+              <label for="trait-type-select" class="form-label">Trait Type</label>
               <select class="form-select" id="trait-type-select" required>
-                <option value="">Selecciona un tipo de rasgo</option>
+                <option value="">Select a trait type</option>
                 <!-- Trait types will be populated dynamically -->
               </select>
             </div>
             
             <div class="mb-3">
-              <label for="trait-value-select" class="form-label">Valor del Rasgo</label>
+              <label for="trait-value-select" class="form-label">Trait Value</label>
               <select class="form-select" id="trait-value-select" required disabled>
-                <option value="">Primero selecciona un tipo de rasgo</option>
+                <option value="">First select a trait type</option>
                 <!-- Trait values will be populated based on selected type -->
               </select>
             </div>
             
             <div class="mb-3">
-              <label for="trait-offer-amount" class="form-label">Cantidad de la Oferta ($ADRIAN)</label>
+              <label for="trait-offer-amount" class="form-label">Offer Amount ($ADRIAN)</label>
               <input type="number" class="form-control" id="trait-offer-amount" min="0.000001" step="0.000001" required>
             </div>
             
-            <button type="submit" class="btn btn-primary w-100">Crear Oferta por Rasgo</button>
+            <button type="submit" class="btn btn-primary w-100">Create Trait Offer</button>
           </form>
         </div>
       </div>
@@ -401,25 +401,25 @@
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Crear Oferta de Piso</h5>
+          <h5 class="modal-title">Create Floor Offer</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <p>Haz una oferta por cualquier NFT de la colección seleccionada.</p>
+          <p>Make an offer for any NFT in the selected collection.</p>
           
           <form id="floor-offer-form">
             <div class="mb-3">
-              <label for="collection-address" class="form-label">Dirección de la Colección</label>
+              <label for="collection-address" class="form-label">Collection Address</label>
               <input type="text" class="form-control" id="collection-address" required>
-              <small class="form-text text-muted">Dirección del contrato de la colección de NFTs</small>
+              <small class="form-text text-muted">Contract address of the NFT collection</small>
             </div>
             
             <div class="mb-3">
-              <label for="floor-offer-amount" class="form-label">Cantidad de la Oferta ($ADRIAN)</label>
+              <label for="floor-offer-amount" class="form-label">Offer Amount ($ADRIAN)</label>
               <input type="number" class="form-control" id="floor-offer-amount" min="0.000001" step="0.000001" required>
             </div>
             
-            <button type="submit" class="btn btn-primary w-100">Crear Oferta de Piso</button>
+            <button type="submit" class="btn btn-primary w-100">Create Floor Offer</button>
           </form>
         </div>
       </div>
@@ -433,6 +433,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
   
   <!-- AdrianMarket dependencies -->
+  <script src="wallet-connector.js"></script>
   <script src="alchemy-helpers.js"></script>
   <script src="offers.js"></script>
   <script src="app.js"></script>
