@@ -1,0 +1,520 @@
+// NFT-related functions for AdrianMarket
+
+// Load user's NFTs using Alchemy
+async function loadUserNFTs(append = false) {
+  if (!currentAccount) return;
+  
+  const loadingElement = document.getElementById("loading-nfts");
+  const noNftsMessage = document.getElementById("no-nfts");
+  const nftGrid = document.getElementById("nft-grid");
+  const loadMoreContainer = document.getElementById("load-more-nfts");
+  
+  // Reset state if not appending
+  if (!append) {
+    loadingElement.style.display = "block";
+    noNftsMessage.style.display = "none";
+    nftGrid.style.display = "none";
+    loadMoreContainer.style.display = "none";
+    nftGrid.innerHTML = "";
+    document.getElementById('listing-form-card').style.display = 'none';
+    selectedNFT = null;
+  } else {
+    const loadMoreNftsBtn = document.getElementById('loadMoreNftsBtn');
+    loadMoreNftsBtn.disabled = true;
+    loadMoreNftsBtn.textContent = "Cargando...";
+  }
+  
+  try {
+    // Use our improved helper function
+    const result = await getNFTsForOwner(ALCHEMY_API_KEY, currentAccount, nftPageKey);
+    
+    // Update page key for next request
+    nftPageKey = result.pageKey;
+    hasMoreNFTs = nftPageKey !== undefined && nftPageKey !== null;
+    
+    if (result.nfts && result.nfts.length > 0) {
+      // Add to or replace existing NFTs
+      if (append) {
+        userNFTs = [...userNFTs, ...result.nfts];
+      } else {
+        userNFTs = result.nfts;
+      }
+      
+      // Display NFTs
+      if (!append) {
+        nftGrid.innerHTML = '';
+      }
+      
+      result.nfts.forEach(nft => {
+        const isSelected = selectedNFT && selectedNFT.tokenId === nft.tokenId && selectedNFT.contract === nft.contract;
+        
+        const cardDiv = document.createElement('div');
+        cardDiv.className = 'col';
+        cardDiv.innerHTML = `
+          <div class="card nft-card ${isSelected ? 'selected' : ''}">
+            <div class="nft-image-container">
+              <img src="${nft.image}" class="nft-image" alt="${nft.title}" 
+                   onerror="this.src='https://placehold.co/400x400?text=NFT+Image'">
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">${nft.title}</h5>
+              <p class="card-text text-muted">ID: ${nft.tokenId}</p>
+              ${isSelected ? '<span class="badge status-live">Seleccionado</span>' : ''}
+            </div>
+          </div>
+        `;
+        
+        cardDiv.querySelector('.nft-card').addEventListener('click', () => selectNFT(nft));
+        nftGrid.appendChild(cardDiv);
+      });
+      
+      loadingElement.style.display = "none";
+      nftGrid.style.display = "block";
+      loadMoreContainer.style.display = hasMoreNFTs ? "block" : "none";
+      
+      const loadMoreNftsBtn = document.getElementById('loadMoreNftsBtn');
+      if (loadMoreNftsBtn) {
+        loadMoreNftsBtn.disabled = false;
+        loadMoreNftsBtn.textContent = "Cargar Más NFTs";
+      }
+    } else {
+      if (!append) {
+        loadingElement.style.display = "none";
+        noNftsMessage.style.display = "block";
+      } else {
+        const loadMoreNftsBtn = document.getElementById('loadMoreNftsBtn');
+        if (loadMoreNftsBtn) {
+          loadMoreNftsBtn.textContent = "No Hay Más NFTs";
+          setTimeout(() => {
+            loadMoreContainer.style.display = "none";
+          }, 2000);
+        }
+      }
+    }
+  } catch (error) {
+    console.error("Error cargando NFTs:", error);
+    loadingElement.style.display = "none";
+    
+    if (append) {
+      const loadMoreNftsBtn = document.getElementById('loadMoreNftsBtn');
+      if (loadMoreNftsBtn) {
+        loadMoreNftsBtn.disabled = false;
+        loadMoreNftsBtn.textContent = "Cargar Más NFTs";
+      }
+      showNotification("Error al cargar más NFTs. Inténtalo de nuevo.", 'error');
+    } else {
+      noNftsMessage.style.display = "block";
+      showNotification("Error al cargar tus NFTs. Inténtalo más tarde.", 'error');
+    }
+  }
+}
+
+// Select NFT for listing
+function selectNFT(nft) {
+  selectedNFT = nft;
+  
+  // Update NFT cards
+  const nftCards = document.querySelectorAll('.nft-card');
+  nftCards.forEach(card => {
+    card.classList.remove('selected');
+  });
+  
+  // Find the card for this NFT and mark it as selected
+  const selectedCard = Array.from(nftCards).find(card => {
+    const titleEl = card.querySelector('.card-title');
+    const idEl = card.querySelector('.card-text');
+    return titleEl.textContent === nft.title && 
+           idEl.textContent.includes(nft.tokenId.toString());
+  });
+  
+  if (selectedCard) {
+    selectedCard.classList.add('selected');
+  }
+  
+  // Update listing form
+  document.getElementById('listing-form-card').style.display = 'block';
+  document.getElementById('selected-nft-image').src = nft.image;
+  document.getElementById('selected-nft-title').textContent = nft.title;
+  document.getElementById('selected-nft-id').textContent = `ID: ${nft.tokenId}`;
+  
+  showNotification(`${nft.title} seleccionado para listar`, 'info');
+}
+
+// Create a listing
+async function createListing() {
+  if (!selectedNFT || !marketContract || !signer) {
+    showNotification('Por favor conecta tu wallet y selecciona un NFT primero', 'error');
+    return;
+  }
+  
+  const price = document.getElementById('listing-price').value;
+  const duration = document.getElementById('listing-duration').value;
+  
+  if (!price || parseFloat(price) <= 0) {
+    showNotification('Por favor ingresa un precio válido', 'error');
+    return;
+  }
+  
+  if (!duration || parseInt(duration) < 1) {
+    showNotification('La duración debe ser de al menos 1 día', 'error');
+    return;
+  }
+  
+  try {
+    // Step 1: Approve the NFT for the marketplace
+    const nftContract = new ethers.Contract(selectedNFT.contract, NFT_ABI, signer);
+    
+    // Check if approval is already given
+    const isApproved = await nftContract.isApprovedForAll(currentAccount, MARKET_ADDRESS);
+    
+    if (!isApproved) {
+      showNotification('Aprobando NFT para el marketplace...', 'info');
+      const approveTx = await nftContract.setApprovalForAll(MARKET_ADDRESS, true);
+      await approveTx.wait();
+    }
+    
+    // Step 2: Create the listing
+    const priceWei = ethers.utils.parseEther(price.toString());
+    const durationSeconds = parseInt(duration) * 24 * 60 * 60; // Convert days to seconds
+    
+    showNotification('Creando listado...', 'info');
+    
+    const tx = await marketContract.createListing(
+      selectedNFT.contract,
+      selectedNFT.tokenId,
+      1, // Quantity is 1 for ERC721
+      priceWei,
+      durationSeconds,
+      1, // NFT type 1 = ERC721
+      { gasLimit: 1000000 }
+    );
+    
+    await tx.wait();
+    
+    showNotification('¡Listado creado exitosamente!', 'success');
+    
+    // Reset form and selection
+    document.getElementById('listing-price').value = '';
+    document.getElementById('listing-duration').value = '7';
+    document.getElementById('listing-form-card').style.display = 'none';
+    selectedNFT = null;
+    
+    // Reload NFTs to show updated state
+    loadUserNFTs();
+    
+    // Switch to listings tab
+    setActiveTab('mylistings');
+    
+  } catch (error) {
+    console.error('Error creando listado:', error);
+    showNotification('Error al crear listado: ' + error.message, 'error');
+  }
+}
+
+// Load active listings
+async function loadActiveListings() {
+  const loadingElement = document.getElementById("loading-listings");
+  const noListingsMessage = document.getElementById("no-listings");
+  const listingsGrid = document.getElementById("listings-grid");
+  const loadMoreBtn = document.getElementById("load-more-listings");
+  
+  loadingElement.style.display = "block";
+  noListingsMessage.style.display = "none";
+  listingsGrid.style.display = "none";
+  loadMoreBtn.style.display = "none";
+  
+  try {
+    if (!marketContract) {
+      // Create a read-only contract instance
+      const readProvider = new ethers.providers.JsonRpcProvider(`https://base-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`);
+      const readContract = new ethers.Contract(MARKET_ADDRESS, MARKET_ABI, readProvider);
+      
+      const listings = await readContract.getActiveListingsDetailed();
+      processListings(listings);
+    } else {
+      const listings = await marketContract.getActiveListingsDetailed();
+      processListings(listings);
+    }
+  } catch (error) {
+    console.error("Error cargando listados:", error);
+    loadingElement.style.display = "none";
+    noListingsMessage.style.display = "block";
+    showNotification("Error al cargar listados. Inténtalo más tarde.", 'error');
+  }
+  
+  async function processListings(listings) {
+    // Filter listings that haven't expired
+    const currentTimestamp = Math.floor(Date.now() / 1000);
+    activeListings = listings.filter(listing => {
+      return listing.expirationTime.toNumber() > currentTimestamp;
+    });
+    
+    if (activeListings.length === 0) {
+      loadingElement.style.display = "none";
+      noListingsMessage.style.display = "block";
+      return;
+    }
+    
+    // Process and display listings
+    listingsGrid.innerHTML = '';
+    
+    for (const listing of activeListings) {
+      try {
+        // Fetch NFT metadata from Alchemy
+        const nftMetadata = await getNFTMetadata(
+          ALCHEMY_API_KEY,
+          listing.collection,
+          listing.tokenId.toString()
+        );
+        
+        // Format expiration
+        const timeString = formatTimeRemaining(listing.expirationTime.toNumber());
+        
+        // Create listing card
+        const listingDiv = document.createElement('div');
+        listingDiv.className = 'col';
+        
+        const price = ethers.utils.formatEther(listing.price);
+        const isOwner = currentAccount && listing.seller.toLowerCase() === currentAccount.toLowerCase();
+        
+        listingDiv.innerHTML = `
+          <div class="card h-100">
+            <div class="nft-image-container">
+              <img src="${nftMetadata.image}" class="nft-image" alt="${nftMetadata.title}" 
+                   onerror="this.src='https://placehold.co/400x400?text=NFT+Image'">
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">${nftMetadata.title}</h5>
+              <p class="card-text"><strong>${price} $ADRIAN</strong></p>
+              <p class="card-text text-muted">${timeString}</p>
+              <div class="d-grid gap-2">
+                ${isOwner ? 
+                  `<button class="btn btn-danger btn-sm cancel-listing-btn" data-listing-id="${listing.id}">
+                    Cancelar Listado
+                  </button>` : 
+                  `<button class="btn btn-success btn-sm buy-listing-btn" data-listing-id="${listing.id}" data-price="${price}">
+                    Comprar Ahora
+                  </button>`
+                }
+                <button class="btn btn-outline-secondary btn-sm view-details-btn" data-listing-id="${listing.id}">
+                  Ver Detalles
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        listingsGrid.appendChild(listingDiv);
+      } catch (listingError) {
+        console.error(`Error procesando listado ${listing.id}:`, listingError);
+      }
+    }
+    
+    // Add event listeners to buttons
+    document.querySelectorAll('.cancel-listing-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const listingId = btn.getAttribute('data-listing-id');
+        cancelListing(listingId);
+      });
+    });
+    
+    document.querySelectorAll('.buy-listing-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const listingId = btn.getAttribute('data-listing-id');
+        const price = btn.getAttribute('data-price');
+        buyListing(listingId, price);
+      });
+    });
+    
+    document.querySelectorAll('.view-details-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const listingId = btn.getAttribute('data-listing-id');
+        showListingDetails(listingId);
+      });
+    });
+    
+    loadingElement.style.display = "none";
+    listingsGrid.style.display = "block";
+  }
+}
+
+// Load my listings
+async function loadMyListings() {
+  if (!currentAccount) return;
+  
+  const loadingElement = document.getElementById("loading-my-listings");
+  const noListingsMessage = document.getElementById("no-my-listings");
+  const listingsGrid = document.getElementById("my-listings-grid");
+  
+  loadingElement.style.display = "block";
+  noListingsMessage.style.display = "none";
+  listingsGrid.style.display = "none";
+  
+  try {
+    if (!marketContract) {
+      // Create contract instance if needed
+      const readProvider = new ethers.providers.JsonRpcProvider(`https://base-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`);
+      const readContract = new ethers.Contract(MARKET_ADDRESS, MARKET_ABI, readProvider);
+      
+      // Using getMyListings function that takes a seller address
+      const listings = await readContract.getMyListings(currentAccount);
+      processListings(listings);
+    } else {
+      const listings = await marketContract.getMyListings(currentAccount);
+      processListings(listings);
+    }
+  } catch (error) {
+    console.error("Error cargando mis listados:", error);
+    loadingElement.style.display = "none";
+    noListingsMessage.style.display = "block";
+    showNotification("Error al cargar tus listados. Inténtalo más tarde.", 'error');
+  }
+  
+  async function processListings(listings) {
+    // Filter listings that haven't expired
+    const currentTimestamp = Math.floor(Date.now() / 1000);
+    const myActiveListings = listings.filter(listing => {
+      return listing.expirationTime.toNumber() > currentTimestamp;
+    });
+    
+    if (myActiveListings.length === 0) {
+      loadingElement.style.display = "none";
+      noListingsMessage.style.display = "block";
+      return;
+    }
+    
+    // Process and display listings
+    listingsGrid.innerHTML = '';
+    
+    for (const listing of myActiveListings) {
+      try {
+        // Fetch NFT metadata from Alchemy
+        const nftMetadata = await getNFTMetadata(
+          ALCHEMY_API_KEY,
+          listing.collection,
+          listing.tokenId.toString()
+        );
+        
+        // Format expiration
+        const timeString = formatTimeRemaining(listing.expirationTime.toNumber());
+        
+        // Create listing card
+        const listingDiv = document.createElement('div');
+        listingDiv.className = 'col';
+        
+        const price = ethers.utils.formatEther(listing.price);
+        
+        listingDiv.innerHTML = `
+          <div class="card h-100">
+            <div class="nft-image-container">
+              <img src="${nftMetadata.image}" class="nft-image" alt="${nftMetadata.title}" 
+                   onerror="this.src='https://placehold.co/400x400?text=NFT+Image'">
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">${nftMetadata.title}</h5>
+              <p class="card-text"><strong>${price} $ADRIAN</strong></p>
+              <p class="card-text text-muted">${timeString}</p>
+              <div class="d-grid gap-2">
+                <button class="btn btn-danger btn-sm cancel-listing-btn" data-listing-id="${listing.id}">
+                  Cancelar Listado
+                </button>
+                <button class="btn btn-outline-secondary btn-sm view-details-btn" data-listing-id="${listing.id}">
+                  Ver Detalles
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        listingsGrid.appendChild(listingDiv);
+      } catch (listingError) {
+        console.error(`Error procesando listado ${listing.id}:`, listingError);
+      }
+    }
+    
+    // Add event listeners to buttons
+    document.querySelectorAll('.cancel-listing-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const listingId = btn.getAttribute('data-listing-id');
+        cancelListing(listingId);
+      });
+    });
+    
+    document.querySelectorAll('.view-details-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const listingId = btn.getAttribute('data-listing-id');
+        showListingDetails(listingId);
+      });
+    });
+    
+    loadingElement.style.display = "none";
+    listingsGrid.style.display = "block";
+  }
+}
+
+// Cancel a listing
+async function cancelListing(listingId) {
+  if (!marketContract || !signer) {
+    showNotification('Por favor conecta tu wallet primero', 'error');
+    return;
+  }
+  
+  try {
+    showNotification('Cancelando listado...', 'info');
+    const tx = await marketContract.cancelListing(listingId, { gasLimit: 1000000 });
+    await tx.wait();
+    
+    showNotification('Listado cancelado exitosamente!', 'success');
+    
+    // Reload listings
+    const activeTab = document.querySelector('.nav-link.active').id;
+    if (activeTab === 'explore-tab') {
+      loadActiveListings();
+    } else if (activeTab === 'myauctions-tab') {
+      loadMyListings();
+    }
+    
+  } catch (error) {
+    console.error('Error cancelando listado:', error);
+    showNotification('Error al cancelar listado: ' + error.message, 'error');
+  }
+}
+
+// Buy a listed NFT
+async function buyListing(listingId, price) {
+  if (!marketContract || !signer) {
+    showNotification('Por favor conecta tu wallet primero', 'error');
+    return;
+  }
+  
+  try {
+    // Approve tokens for marketplace if needed
+    const priceWei = ethers.utils.parseEther(price.toString());
+    const allowance = await tokenContract.allowance(currentAccount, MARKET_ADDRESS);
+    
+    if (allowance.lt(priceWei)) {
+      showNotification('Aprobando tokens para la compra...', 'info');
+      const approveTx = await tokenContract.approve(MARKET_ADDRESS, priceWei);
+      await approveTx.wait();
+    }
+    
+    // Buy the NFT
+    showNotification('Procesando compra...', 'info');
+    const buyTx = await marketContract.buyListing(listingId, 1, { gasLimit: 1000000 });
+    await buyTx.wait();
+    
+    showNotification('¡Compra exitosa!', 'success');
+    
+    // Reload listings
+    loadActiveListings();
+    
+  } catch (error) {
+    console.error('Error comprando NFT:', error);
+    showNotification('Error al comprar NFT: ' + error.message, 'error');
+  }
+} 
