@@ -189,8 +189,8 @@ async function connectWallet() {
       return;
     }
     
-    // Use our new wallet connector
-    const walletData = await connectWallet('metamask');
+    // Use our new wallet connector (renamed to avoid recursion)
+    const walletData = await window.connectWallet('metamask');
     
     currentAccount = walletData.account;
     provider = walletData.provider;
@@ -241,9 +241,9 @@ async function connectWallet() {
 
 // Check if wallet is already connected
 async function checkConnection() {
-  if (isWalletAvailable()) {
+  if (window.isWalletAvailable()) {
     try {
-      const isConnected = await checkWalletConnection();
+      const isConnected = await window.checkWalletConnection();
       if (isConnected) {
         // Auto-connect if user has previously connected
         await connectWallet();

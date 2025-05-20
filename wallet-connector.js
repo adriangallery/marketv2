@@ -249,4 +249,10 @@ function isWalletAvailable(walletType = 'metamask') {
   if (!walletsSupported[walletType]) return false;
   
   return walletsSupported[walletType].isWalletAvailable();
-} 
+}
+
+// Expose to window object to avoid name conflicts
+window.connectWallet = connectWallet;
+window.checkWalletConnection = checkWalletConnection;
+window.getWalletConnector = getWalletConnector;
+window.isWalletAvailable = isWalletAvailable; 
